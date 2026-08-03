@@ -787,7 +787,10 @@ function renderMD(text){
  return h+"</div>";
 }
 function showSub(k,type){
- var text=mdGet(k.replace("c","")+"_"+type);
+ var code=k.replace("c","");
+ var map={229:"00229",220:"00220",808:"00808",247:"00247"};
+ code=map[parseInt(code)]||code;
+ var text=mdGet(code+"_"+type);
  if(!text)return;
  var m=document.getElementById("main");
  var label=type==="know"?"📘 知识点总结":"📕 题库";
