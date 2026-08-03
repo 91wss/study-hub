@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>10月自考 · 学习工作台</title>
+<style>
+:root{
+ --bg:#f2efe9; --panel:#faf8f5; --line:#e5dfd5; --line2:#f0ece5;
+ --tx:#2d2a26; --tx2:#5e5952; --tx3:#8a847a;
+ --c0229:#d97706; --c13000:#0284c7; --c0220:#2563eb;
+ --c0808:#7c3aed; --c0247:#059669; --c13702:#dc2626;
+ --warn:#b45309; --ok:#047857;
+ --side:250px;
+ --shadow:0 1px 2px rgba(0,0,0,.04);
+ --shadow-h:0 3px 10px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:14px/1.7 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+/* sidebar — soft & warm */
+aside{width:var(--side);background:#f7f4ef;color:var(--tx2);flex:none;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:10;font-size:13px;border-right:1px solid #e8e2d8;box-shadow:1px 0 4px rgba(0,0,0,.03)}
+aside::-webkit-scrollbar{width:4px}
+aside::-webkit-scrollbar-thumb{background:#cdc5b8;border-radius:4px}
+.s-top{padding:22px 18px 14px}
+.s-top h2{font-size:15px;font-weight:700;color:var(--tx);letter-spacing:-.3px}
+.s-top .dt{font-size:11px;color:var(--tx3);margin-top:3px}
+.s-sec{padding:12px 18px 6px;font-size:10.5px;color:var(--tx3);font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.si{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;color:var(--tx2);transition:all .15s;border-left:3px solid transparent;font-size:13px;text-decoration:none;border-radius:0 6px 6px 0;margin-right:8px}
+.si:hover{background:#eee8db;color:var(--tx)}
+.si.on{background:#e8e1d4;color:var(--tx);border-left-color:#d97706;font-weight:650}
+.si .bar{width:3px;height:14px;border-radius:3px;flex:none}
+.si .pct{font-size:10.5px;color:var(--tx3);margin-left:auto;background:#e8e1d4;padding:1.5px 6px;border-radius:4px}
+.si.on .pct{background:#dcd2c0;color:var(--tx2)}
+
+/* main */
+main{margin-left:var(--side);flex:1;min-width:0}
+.pg{display:none;padding:32px 36px 80px;max-width:960px}
+.pg.on{display:block}
+
+/* countdown strip */
+.cds{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:24px}
+.cd{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow)}
+.cd .lb{font-size:11px;color:var(--tx3);display:flex;align-items:center;gap:5px;font-weight:600;letter-spacing:.3px}
+.cd .nm{font-size:26px;font-weight:700;line-height:1.15;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.cd .nm small{font-size:11px;font-weight:400;color:var(--tx3)}
+.cd .dt{font-size:10.5px;color:var(--tx3);margin-top:3px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--tx3);display:inline-block;flex:none}
+.dot.r{background:#ef4444;animation:bl 1.8s infinite}
+@keyframes bl{50%{opacity:.2}}
+.cd.urgent{border-color:#fcd34d;background:#fffef5}
+.cd.urgent .nm{color:#d97706}
+
+/* page header */
+.phd{display:flex;align-items:center;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.phd .cdt{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.phd .tag{font-size:10.5px;font-weight:600;color:#fff;padding:3px 8px;border-radius:5px;white-space:nowrap;letter-spacing:.2px}
+.pdesc{font-size:12.5px;color:var(--tx2);margin-bottom:20px;line-height:1.7}
+.pdesc b{color:var(--tx)}
+
+/* alarm */
+.alarm{background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:13px 16px;font-size:12px;color:#92400e;margin-bottom:18px;line-height:1.7}
+.alarm b{color:#78350f}
+
+/* progress */
+.pbar{margin-bottom:22px;display:flex;align-items:center;gap:14px}
+.pbar .track{flex:1;height:7px;background:#e5e8ed;border-radius:10px;overflow:hidden}
+.pbar .track i{display:block;height:100%;border-radius:10px;transition:width .35s}
+.pbar .num{font-size:11.5px;color:var(--tx3);font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+
+/* section titles */
+.sec{font-size:15px;font-weight:700;margin:28px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--line);display:flex;align-items:center;gap:10px;letter-spacing:-.2px}
+
+/* knowledge grid */
+.kg{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-bottom:20px}
+.kc{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow);border-left:4px solid transparent}
+.kc:nth-child(1){border-left-color:#e85d04}
+.kc:nth-child(2){border-left-color:#0077b6}
+.kc:nth-child(3){border-left-color:#059669}
+.kc:nth-child(4){border-left-color:#7c3aed}
+.kc:nth-child(5){border-left-color:#dc2626}
+.kc h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--tx)}
+.kc ul{margin:0;padding:0 0 0 17px;font-size:12px;color:var(--tx2);line-height:1.9}
+.kc li{margin-bottom:2px}
+
+/* resources */
+.rg{margin-bottom:16px}
+.rg-t{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.6px;margin-bottom:9px}
+.rl{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.r{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:11px 13px;display:block;transition:all .18s;box-shadow:var(--shadow)}
+.r:hover{border-color:#b0b8c5;box-shadow:var(--shadow-h);transform:translateY(-1px)}
+.r .n{font-size:12.5px;font-weight:650;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.r .n em{font-style:normal;font-size:9px;font-weight:700;color:#fff;padding:2px 5px;border-radius:4px;flex:none;letter-spacing:.2px}
+.r .n em.b{background:#fb7299}.r .n em.d{background:#161823}.r .n em.g{background:#2563eb}
+.r .n em.m{background:#0f766e}.r .n em.y{background:#dc2626}.r .n em.v{background:#7c3aed}
+.r .n em.l{background:#e85d04}
+.r .dsc{font-size:11px;color:var(--tx3);margin-top:4px;line-height:1.5}
+
+/* checklist */
+.it{display:flex;gap:10px;padding:7px 0;align-items:flex-start;cursor:pointer;font-size:13px;color:var(--tx2);line-height:1.6}
+.it:hover{color:var(--tx)}
+.it input{margin-top:3px;accent-color:var(--tx);cursor:pointer;flex:none;width:15px;height:15px}
+.it.done{color:var(--tx3);text-decoration:line-through;text-decoration-color:var(--line)}
+/* update button */
+.upd{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;padding:3px 8px;background:var(--panel);border:1px solid var(--line);border-radius:5px;cursor:pointer;color:var(--tx3);margin-left:auto;white-space:nowrap;transition:all .15s;font-family:inherit}
+.upd:hover{border-color:#c5b898;color:var(--tx2)}
+.upd.req{background:#fef3c7;border-color:#fcd34d;color:#b45309;animation:updPulse 2s infinite}
+@keyframes updPulse{50%{border-color:#f59e0b}}
+
+/* mobile responsive */
+@media(max-width:768px){
+ aside{position:relative;width:100%;height:auto;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line);box-shadow:none;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+ aside::-webkit-scrollbar{display:none}
+ .s-top{width:100%;padding:14px 6px 8px}
+ .s-sec{display:none}
+ #side-cd{display:none}
+ #side-nav,#side-other{display:flex;flex-direction:row;gap:3px;overflow-x:auto;padding:0;flex-wrap:nowrap}
+ #side-nav .si,#side-other .si{border-left:0;border-bottom:3px solid transparent;padding:8px 10px;font-size:11px;white-space:nowrap;margin-right:0;border-radius:0;flex:none}
+ #side-nav .si.on,#side-other .si.on{border-bottom-color:var(--c0229);background:transparent}
+ .si .pct{display:none}
+ .si .bar{display:none}
+ #chk{display:none!important}
+ #daycount{display:none}
+ #side-cd{display:none}
+ main{margin-left:0}
+ .pg{padding:16px 14px 60px}
+ .cds{grid-template-columns:repeat(2,1fr)}
+ .kg{grid-template-columns:1fr}
+ .rl{grid-template-columns:1fr}
+ .phd{flex-wrap:wrap}
+ .phd .cdt{font-size:17px}
+}
+@media(min-width:769px) and (max-width:1024px){
+ .cds{grid-template-columns:repeat(2,1fr)}
+ .kg{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+}
+
+/* notes */
+textarea{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:12px 14px;font:inherit;font-size:12.5px;line-height:1.8;resize:vertical;background:var(--panel);color:var(--tx);min-height:80px;transition:border-color .15s}
+textarea:focus{outline:0;border-color:#a0a8b8}
+
+/* checkin */
+.chk{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.chk button{font:inherit;font-size:11px;padding:5px 10px;border:1.5px solid #e0d8c8;background:#ede6d9;border-radius:6px;cursor:pointer;color:var(--tx2);transition:all .15s}
+.chk button:hover{border-color:#c5b898}
+.chk button.on{background:#d4e8cf;color:#2d6a2d;border-color:#8cc08e}
+
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.tools button{font:inherit;font-size:11.5px;padding:6px 11px;border:1.5px solid var(--line);background:var(--panel);border-radius:6px;cursor:pointer;color:var(--tx2)}
+.tools button:hover{border-color:var(--tx3);color:var(--tx)}
+
+footer{font-size:11px;color:var(--tx3);margin-top:40px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+ <div class="s-top"><h2>10月自考工作台</h2><div class="dt" id="today"></div></div>
+ <div class="s-sec">考试倒计时</div>
+ <div id="side-cd" style="padding:4px 18px 8px;font-size:20px;font-weight:700;color:var(--c0229);font-variant-numeric:tabular-nums"></div>
+ <div class="s-sec">10月已报科目（6门）</div>
+ <div id="side-nav"></div>
+ <div class="s-sec">AI & 写作 & 其他</div>
+ <div id="side-other"></div>
+ <div style="padding:12px 18px;margin-top:auto;border-top:1px solid var(--line)">
+  <div style="font-size:10.5px;color:var(--tx3);font-weight:700;letter-spacing:.5px;margin-bottom:6px">今日复习打卡</div>
+  <div class="chk" id="chk" style="flex-direction:column;gap:4px;margin:0"></div>
+  <div style="font-size:11px;color:var(--tx3);margin-top:10px">距离开考</div>
+  <div style="font-size:26px;font-weight:800;color:var(--c0229);font-variant-numeric:tabular-nums;letter-spacing:-.5px" id="daycount"></div>
+  <div style="font-size:10.5px;color:var(--tx3)">10月23日</div>
+ </div>
+</aside>
+
+<main id="main"></main>
+
+<script>
+/* ============ 数据 ============ */
+const EXAM_DATE='2026-10-23T09:00';
+const COURSES={
+ c0229:{code:'00229',name:'证据法学',color:'var(--c0229)',time:'10/23 上午',tag:'2026换新大纲新教材',tagColor:'#dc2626',folder:'00229证据法学',
+  alarm:'<b>⚠ 2026年4月起启用新大纲新教材！</b>新教材：<b>《证据法学》潘金贵主编，法律出版社2022年版</b>。旧版资料100%作废。湖北省已公布第二批共39门课程的新大纲目录，证据法学在其中。新大纲共分N个章节（需以官方正式版为准），覆盖刑事诉讼证据为主、兼顾民行证据。务必在8月报名前买到这本教材！',
+  desc:'湖北自考法学本科。2026年10月23日周五上午考试（9:00-11:30），与00235犯罪学(一)同一时段二选一。证据法是程序法的核心，自考题型通常为单选、多选、名词解释、简答、论述。',
+  know:[
+   {t:'2026新大纲 · 证据法基础',items:['教材：《证据法学》潘金贵主编，法律出版社2022年版','课程性质：法学核心必修课，以刑事诉讼证据为主，兼顾民行诉讼证据','课程学分：6学分，深度学习内容量较大','学习重点：三大诉讼法证据规则的异同对比','2026年4月起首次启用，无历年真题参考，<b>必须吃透教材和官方大纲</b>']},
+   {t:'证据法总论（新大纲核心）',items:['证据的概念与属性：客观性、关联性、合法性','证据法基本原则：证据裁判原则、自由心证原则、直接言词原则','证据制度的历史发展：神示→法定→自由心证','两大法系证据制度比较：英美法系证据规则 vs 大陆法系自由证明']},
+   {t:'证据的种类与分类',items:['物证、书证——实物证据的审查判断','证人证言——证人资格、作证义务与保护','当事人陈述——刑事被害人陈述/被告人供述的区别','鉴定意见——专家辅助人制度','勘验/检查/辨认/侦查实验笔录','视听资料与电子数据——<b>新法重点，2026必考</b>','原始证据 vs 传来证据；直接证据 vs 间接证据']},
+   {t:'证明论',items:['证明对象：实体法事实+程序法事实+证据事实','免证事实：司法认知、推定、自认','证明责任分配：刑诉"控方举证"，民诉"谁主张谁举证"','证明标准：刑诉"排除合理怀疑" vs 民诉"高度盖然性" vs 行政"明显优势"','证明环节：举证→质证→认证——各自规则不同']},
+   {t:'证据规则（2026核心考点）',items:['非法证据排除规则：<b>刑讯逼供→绝对排除；瑕疵证据→可补正</b>','传闻证据规则：中国部分吸收，重点关注例外情形','最佳证据规则：原件优先原则及其例外','意见证据规则：证人只能陈述事实不得发表意见','补强证据规则：仅口供不能定罪（刑诉法第55条）','品格证据规则——我国尚未完全确立但新大纲有涉及']}
+  ],
+  local:[
+   {n:'📘 00229证据法学·大白话知识点总结',f:'G:\\法\\00229_证据法学_大白话知识点.md',d:'9章大白话讲解+考前速记清单（名词解释/简答/论述方向）'},
+   {n:'📕 00229证据法学·题库（含真题+答案）',f:'G:\\法\\00229_证据法学_题库.md',d:'71套真题精选+新大纲针对性出题，每题带详细解析'},
+   {n:'📄 00229证据法学通关宝典',f:'G:\\法\\.workbuddy\\materials\\00229证据法学/00229《证据学》通关宝典.pdf',d:'包含各章节核心考点提炼'},
+   {n:'📄 证据法学考试大纲',f:'G:\\法\\.workbuddy\\materials\\00229证据法学/00229证据法学考试大纲..pdf',d:'对照2026新大纲确认知识点覆盖'},
+   {n:'📄 密训复习资料',f:'G:\\法\\.workbuddy\\materials\\00229证据法学/密训资料证据法学.pdf',d:'高频考点与答题模板'},
+   {n:'📄 自考证据法学笔记整理',f:'G:\\法\\.workbuddy\\materials\\00229证据法学/自考证据法学笔记整理.doc',d:'章节笔记'},
+   {n:'📄 填空选择专项',f:'G:\\法\\.workbuddy\\materials\\00229证据法学/证据法学填空选择.pdf',d:'客观题专项训练'},
+   {n:'📄 近三年真题(2023-2025)',f:'G:\\法\\.workbuddy\\materials\\00229证据法学/',d:'多个真题文件，选择题型重点刷'}
+  ],
+  online:[
+   {n:'向高甲 · 刑诉证据法精讲',u:'https://search.bilibili.com/all?keyword=%E5%90%91%E9%AB%98%E7%94%B2+%E8%AF%81%E6%8D%AE%E6%B3%95',p:'B站',pc:'b',d:'法考刑诉名师，口诀教学，证据链条图示化'},
+   {n:'左宁 · 刑诉证据论',u:'https://search.bilibili.com/all?keyword=%E5%B7%A6%E5%AE%81+%E5%88%91%E8%AF%89+%E8%AF%81%E6%8D%AE',p:'B站',pc:'b',d:'体系化讲解，适合搭建证据法知识框架'},
+   {n:'00229证据法学 自考专项',u:'https://search.bilibili.com/all?keyword=00229+%E8%AF%81%E6%8D%AE%E6%B3%95%E5%AD%A6+%E8%87%AA%E8%80%83',p:'B站',pc:'b',d:'筛选2026版本，旧版不适用'},
+   {n:'证据法学 笔记/口诀',u:'https://www.douyin.com/search/%E8%AF%81%E6%8D%AE%E6%B3%95%E5%AD%A6+%E8%87%AA%E8%80%83',p:'抖音',pc:'d',d:'碎片时间记忆知识点'},
+   {n:'中国大学MOOC 证据法学',u:'https://www.icourse163.org/search.htm?search=%E8%AF%81%E6%8D%AE%E6%B3%95%E5%AD%A6',p:'MOOC',pc:'m',d:'法大/人大系统课，辅助理解'},
+   {n:'非法证据排除 法考专题',u:'https://search.bilibili.com/all?keyword=%E9%9D%9E%E6%B3%95%E8%AF%81%E6%8D%AE%E6%8E%92%E9%99%A4+%E6%B3%95%E8%80%83',p:'B站',pc:'b',d:'自考高频考点，法考讲得更深'}
+  ],
+  items:[
+   {id:'0229_1',t:'<b class="k">立刻下单：潘金贵《证据法学》法律出版社2022年版</b>——新旧教材内容差异可能很大'},
+   {id:'0229_2',t:'去湖北省教育考试院官网下载00229<b class="k">2026新考试大纲</b>（含各章节考核要求）'},
+   {id:'0229_3',t:'新教材到手后，先通读目录与章节框架，<b class="k">标注与旧版笔记的出入</b>'},
+   {id:'0229_4',t:'证据种类（8种法定证据）逐一掌握审查判断规则——重点：电子数据'},
+   {id:'0229_5',t:'三大诉讼法证据规则对比（刑 vs 民 vs 行政）——用表格整理'},
+   {id:'0229_6',t:'非法证据排除：绝对排除 vs 可补正的瑕疵证据，逐条梳理'},
+   {id:'0229_7',t:'⚠ 无历年真题参考——做教材配套习题 + 参考法考证据法真题'},
+   {id:'0229_8',t:'法考补充：向高甲/左宁刑诉证据部分，但必须对照新大纲筛选'}
+  ]
+ },
+
+ c13000:{code:'13000',name:'英语(专升本)',color:'var(--c13000)',time:'10/25 下午',tag:'原00015英语二',tagColor:'#0369a1',folder:'13000英语专升本',
+  alarm:'<b>13000英语(专升本)与06941知识产权法概论同一时段（10/25下午），只能二选一。</b>如果英语基础较好且已通过原00015英语二，部分省份可申请免考或替代，需自行确认湖北省最新免考政策。',
+  desc:'湖北自考法学本科公共课。10月25日周日下午考试。原课程代码00015（英语二），新代码13000。题型通常为阅读理解(40%)、词汇语法、完形填空、翻译、写作。',
+  know:[
+   {t:'阅读理解（占分最高≈40%）',items:['题型：4篇短文，每篇后设5道选择题','核心能力：快速定位关键信息 + 同义替换识别','策略：先读题目圈关键词 → 回原文定位 → 排除干扰项','高频话题：社会、教育、科技、文化、环境','每天做1篇真题阅读，计时15分钟/篇']},
+   {t:'词汇与语法',items:['核心词汇量：3500-4500（约等于四级偏下）','重点：动词时态语态、非谓语动词、虚拟语气','三大从句：定语从句、名词性从句、状语从句','你手头有《自考2000+高频必背单词》.xls（G盘已解压）','每天背30个高频词 + 复习前一天易忘的']},
+   {t:'完形填空',items:['10-20个空格，考查语境理解和词汇语法','策略：先通读全文理解大意 → 再逐空判断 → 代入验证','注意上下文逻辑连接词（however/therefore/although等）','常见考点：固定搭配、词义辨析、时态呼应']},
+   {t:'翻译与写作',items:['英译汉：理解原文准确含义，注意定语从句的拆分','汉译英：用最稳妥的句式，不出错比出彩重要','写作：通常为议论文/书信/说明文','你手头有曹老师《作文辅导参考资料》.doc','背3个开头+结尾万能句式，考场直接套','保证基本不出语法错误即可，不追求华丽词汇']}
+  ],
+  local:[
+   {n:'📘 13000英语·大白话知识点总结',f:'G:\\法\\13000_英语专升本_大白话知识点.md',d:'阅读/完形/翻译/写作技巧+万能模板+本地资料用法'},
+   {n:'📕 13000英语·题库',f:'G:\\法\\13000_英语专升本_题库.md',d:'阅读理解+完形+词汇语法+翻译+写作范文，每题带答案'},
+   {n:'📄 曹老师·动词表337',f:'G:\\法\\.workbuddy\\materials\\公共课/13000英语专升本/曹老师英语资料/动词表337.docx',d:'不规则动词变化表，必须背熟'},
+   {n:'📄 自考2000+高频必背单词',f:'G:\\法\\.workbuddy\\materials\\公共课/13000英语专升本/曹老师英语资料/自考2000+高频必背单词.xls',d:'按频率排序，从高频往下背'},
+   {n:'📄 词性转换汇总',f:'G:\\法\\.workbuddy\\materials\\公共课/13000英语专升本/曹老师英语资料/词性转换汇总.docx',d:'adj→adv，n→adj等转换规则'},
+   {n:'📄 作文辅导参考资料',f:'G:\\法\\.workbuddy\\materials\\公共课/13000英语专升本/资料/00015作文辅导参考资料.doc',d:'写作模板与例句'},
+   {n:'📄 英语二应试技巧',f:'G:\\法\\.workbuddy\\materials\\公共课/13000英语专升本/资料/自考00015英语二应试技巧.doc',d:'各题型答题策略'},
+   {n:'📄 英语二考前重点',f:'G:\\法\\.workbuddy\\materials\\公共课/13000英语专升本/资料/自考00015英语二考前重点.Doc',d:'考前冲刺精华'},
+   {n:'📄 历年真题(2018-2026)',f:'G:\\法\\.workbuddy\\materials\\公共课/13000英语专升本/真题/',d:'11套真题，阅读+完形+写作全覆盖'}
+  ],
+  online:[
+   {n:'英语兔 · 语法体系',u:'https://search.bilibili.com/all?keyword=%E8%8B%B1%E8%AF%AD%E5%85%94+%E8%AF%AD%E6%B3%95%E5%85%A5%E9%97%A8',p:'B站',pc:'b',d:'B站英语顶流，语法系列一次学完不回头'},
+   {n:'自考英语二 全程班',u:'https://search.bilibili.com/all?keyword=%E8%87%AA%E8%80%83+%E8%8B%B1%E8%AF%AD%E4%BA%8C+%E5%85%A8%E7%A8%8B%E7%8F%AD',p:'B站',pc:'b',d:'选播放量高的完整系列，挑2025年后的'},
+   {n:'自考 英语阅读技巧',u:'https://search.bilibili.com/all?keyword=%E8%87%AA%E8%80%83%E8%8B%B1%E8%AF%AD+%E9%98%85%E8%AF%BB+%E6%8A%80%E5%B7%A7',p:'B站',pc:'b',d:'定位关键词+同义替换+排除干扰项'},
+   {n:'自考英语 作文模板',u:'https://search.bilibili.com/all?keyword=%E8%87%AA%E8%80%83%E8%8B%B1%E8%AF%AD+%E4%BD%9C%E6%96%87+%E6%A8%A1%E6%9D%BF',p:'B站',pc:'b',d:'背3-5个万能句式即可，不求多'},
+   {n:'自考英语二 真题讲解',u:'https://www.douyin.com/search/%E8%87%AA%E8%80%83%E8%8B%B1%E8%AF%AD%E4%BA%8C+%E7%9C%9F%E9%A2%98',p:'抖音',pc:'d',d:'碎片时间看一道阅读题分析'},
+   {n:'00015英语二 历年真题PDF',u:'https://search.bilibili.com/all?keyword=00015+%E8%8B%B1%E8%AF%AD%E4%BA%8C+%E7%9C%9F%E9%A2%98+PDF',p:'B站',pc:'b',d:'部分UP主分享真题PDF版'},
+   {n:'不背单词 App',u:'https://www.bbdc.cn',p:'工具',pc:'v',d:'选四级词库开始，每天30分钟'}
+  ],
+  items:[
+   {id:'13000_1',t:'<b class="k">每天背30个高频单词</b>（用G盘解压的高频必背单词表），背完回头复习前一天不会的'},
+   {id:'13000_2',t:'背熟不规则动词表（337个动词的过去式/过去分词）'},
+   {id:'13000_3',t:'语法体系补全：三大从句+非谓语动词+虚拟语气，不懂的查英语兔视频'},
+   {id:'13000_4',t:'真题阅读<b class="k">每天1篇</b>，计时15分钟，做完逐句精读，标出生词'},
+   {id:'13000_5',t:'完形填空专项：近5年真题全部刷完，总结常考固定搭配'},
+   {id:'13000_6',t:'写作：背3个开头+结尾万能句，练3篇完整作文，对照范文改'},
+   {id:'13000_7',t:'考前2周做2套完整的限时模拟，严格按考试时间'},
+   {id:'13000_8',t:'考前1周回看：高频单词最后一轮 + 错题本'}
+  ]
+ },
+
+ c0220:{code:'00220',name:'行政法与行政诉讼法',color:'var(--c0220)',time:'10/24 下午',tag:'',tagColor:'',folder:'00220行政法与行政诉讼法',
+  alarm:'本时段（10/24下午）同时开考3门：00320行政法与行政诉讼法 / 00227公司法 / 15040习概。你报了行政法，<b>务必确认不要搞混这三门</b>。时段冲突意味着本考期你放弃了公司法和习概（除非下次再报）。',
+  desc:'法学本科核心部门法。涵盖行政法基本原理、行政许可/处罚/强制、行政复议、行政诉讼、国家赔偿五大块。自考题型通常包含单选、多选、名词解释、简答、论述、案例分析。与法考行政法高度重合。',
+  know:[
+   {t:'行政法总论',items:['行政法的基本原则：合法行政、合理行政、程序正当、高效便民、诚实守信、权责统一','行政主体：行政机关 + 法律法规授权组织，注意区分','行政行为：具体行政行为 vs 抽象行政行为（能否复议/诉讼的关键）','行政行为的效力：公定力、确定力、拘束力、执行力']},
+   {t:'行政许可/处罚/强制',items:['行政许可：设定权（法律/法规/规章分层次）→ 实施程序 → 听证','行政处罚：种类（警告→罚款→暂扣→吊销→拘留）→ 决定程序（简易/一般/听证）','行政强制：行政强制措施（查封扣押冻结） vs 行政强制执行（代履行/执行罚）','这三法是行政法的三大核心制度，也是案例题的常客']},
+   {t:'行政复议',items:['复议范围：具体行政行为+部分抽象行政行为的附带审查','复议机关："找谁复议"是核心考点——政府/部门的上一级','复议程序：申请（60日内）→ 审理 → 决定（维持/撤销/变更/确认违法）','复议与诉讼的关系：大多数案件"选哪条路都行，选了复议还可诉"']},
+   {t:'行政诉讼',items:['受案范围：哪些能告哪些不能——是行政诉讼的第一道坎','管辖：级别管辖（基层 vs 中院）+ 地域管辖（被告所在地）','被告的确定："谁作出的行政行为就告谁"','举证责任：被告（行政机关）负主要的举证责任——这是行政诉讼的特色','判决类型：驳回→撤销→履行→变更→确认违法/无效→赔偿']},
+   {t:'国家赔偿',items:['行政赔偿 vs 刑事赔偿——两种赔偿的责任主体不同','赔偿范围：人身权损害 + 财产权损害','赔偿程序：先向赔偿义务机关申请 → 再向法院起诉','赔偿标准：以"填平损失"为原则']}
+  ],
+  local:[
+   {n:'📘 00220行政法·大白话知识点总结',f:'G:\\法\\00220_行政法与行政诉讼法_大白话知识点.md',d:'21章大白话讲解+三大行政行为对比表+考前速记'},
+   {n:'📕 00220行政法·题库',f:'G:\\法\\00220_行政法与行政诉讼法_题库.md',d:'15题核心考点+行政复议vs诉讼+举证责任专题'},
+   {n:'📄 行政法与行政诉讼法全书核心笔记',f:'G:\\法\\.workbuddy\\materials\\00220行政法与行政诉讼法/00220《行政法与行政诉讼法》全书核心.docx',d:'最重要的文件——全书精华浓缩'},
+   {n:'📄 2024年10月真题及答案',f:'G:\\法\\.workbuddy\\materials\\00220行政法与行政诉讼法/202410《行政法与行政诉讼法》真题及答案.pdf',d:'最近真题之一'},
+   {n:'📄 2025年4月真题及答案',f:'G:\\法\\.workbuddy\\materials\\00220行政法与行政诉讼法/202504《行政法与行政诉讼法》真题及答案.pdf',d:'最新真题'}
+  ],
+  online:[
+   {n:'李佳 · 行政法精讲（众合法考）',u:'https://search.bilibili.com/all?keyword=%E6%9D%8E%E4%BD%B3+%E8%A1%8C%E6%94%BF%E6%B3%95+%E7%B2%BE%E8%AE%B2',p:'B站',pc:'b',d:'法考行政法第一人，生活化案例，强烈推荐'},
+   {n:'徐金桂 · 行政法',u:'https://search.bilibili.com/all?keyword=%E5%BE%90%E9%87%91%E6%A1%82+%E8%A1%8C%E6%94%BF%E6%B3%95',p:'B站',pc:'b',d:'瑞达名师，大量总结表格，作为李佳备选'},
+   {n:'00220行政法 自考专项',u:'https://search.bilibili.com/all?keyword=00220+%E8%A1%8C%E6%94%BF%E6%B3%95+%E8%87%AA%E8%80%83',p:'B站',pc:'b',d:'对照自考大纲筛选'},
+   {n:'李佳 · 行政复议/诉讼专题',u:'https://search.bilibili.com/all?keyword=%E6%9D%8E%E4%BD%B3+%E8%A1%8C%E6%94%BF%E5%A4%8D%E8%AE%AE+%E8%A1%8C%E6%94%BF%E8%AF%89%E8%AE%BC',p:'B站',pc:'b',d:'行政复议+诉讼是案例题重点'},
+   {n:'行政法 法考口诀',u:'https://www.douyin.com/search/%E8%A1%8C%E6%94%BF%E6%B3%95+%E6%B3%95%E8%80%83+%E5%8F%A3%E8%AF%80',p:'抖音',pc:'d',d:'碎片记忆行政处罚种类等背诵点'},
+   {n:'法大 行政法与行政诉讼法 MOOC',u:'https://www.icourse163.org/search.htm?search=%E8%A1%8C%E6%94%BF%E6%B3%95%E4%B8%8E%E8%A1%8C%E6%94%BF%E8%AF%89%E8%AE%BC%E6%B3%95',p:'MOOC',pc:'m',d:'法大精品课，学术深度足够'},
+   {n:'国家法律法规数据库',u:'https://flk.npc.gov.cn',p:'官方',pc:'g',d:'核对现行有效的行政许可法/处罚法/强制法/复议法/诉讼法条文'}
+  ],
+  items:[
+   {id:'0220_1',t:'先做一件事：把全书核心笔记通读1-2遍，<b class="k">建立五大部分的整体框架</b>'},
+   {id:'0220_2',t:'攻克三大行政行为法：许可+处罚+强制，各自主体/程序/救济途径对比记忆'},
+   {id:'0220_3',t:'行政复议 vs 行政诉讼：范围、管辖、程序一一对照整理成表格'},
+   {id:'0220_4',t:'举证责任分配（行政诉讼中被告负主要举证责任）——这是必考点'},
+   {id:'0220_5',t:'刷近3年真题，重点看案例分析的答题逻辑'},
+   {id:'0220_6',t:'国家赔偿法：两种赔偿的对比（行政 vs 刑事）'},
+   {id:'0220_7',t:'动笔默写：行政许可/处罚/强制的设定权限划分表'}
+  ]
+ },
+
+ c0808:{code:'00808',name:'商法',color:'var(--c0808)',time:'10/25 上午',tag:'',tagColor:'',folder:'00808商法',
+  alarm:'本时段（10/25上午）同时开考3门：00808商法 / 15043中国近现代史纲要 / 14081侵权责任法。你报了商法，<b>放弃了史纲和侵权法</b>。商法内容量大面广（公司法/合伙/破产/票据/保险/证券六块），时间紧的话优先保公司法。',
+  desc:'法学本科核心部门法。涵盖公司法、合伙企业法、破产法、票据法、保险法、证券法六大部分。与法考商法高度重合，可以直接用法考名师课程打底。自考题型通常为单选、多选、名词解释、简答、论述。',
+  know:[
+   {t:'公司法（占分约40%）',items:['公司的特征：法人性、营利性、社团性','有限责任公司 vs 股份有限公司——设立条件、组织机构、股权转让规则','公司治理结构：股东(大)会→董事会→监事会→经理——各自的职权划分','董监高的忠实义务与勤勉义务——案例题常考点','公司资本制度：注册资本认缴制、增减资程序、抽逃出资的认定','公司合并/分立/解散/清算——程序和法律后果']},
+   {t:'合伙企业法',items:['普通合伙 vs 有限合伙——两种合伙的区别','合伙人的权利与义务：出资、利润分配、事务执行','入伙和退伙的条件与法律后果','特殊的普通合伙企业（如律所/会计师事务所）']},
+   {t:'破产法',items:['破产原因："不能清偿到期债务+资不抵债/明显缺乏清偿能力"','破产程序：申请→受理→管理人接管→债权申报→债权人会议→重整/和解/清算','破产财产的分配顺序：破产费用→职工债权→税款→普通债权','取回权、抵销权、撤销权——三种特别权利']},
+   {t:'票据法/保险法/证券法',items:['票据法：汇票/本票/支票的基本制度，票据行为（出票/背书/承兑/保证）','保险法：保险合同的特征、投保人/保险人/被保险人的权利义务','证券法：证券发行的注册制、信息披露义务、内幕交易与操纵市场']}
+  ],
+  local:[
+   {n:'📘 00808商法·大白话知识点总结',f:'G:\\法\\00808_商法_大白话知识点.md',d:'公司法/合伙/破产/票据/保险/证券六板块大白话+考前速记'},
+   {n:'📕 00808商法·题库（含答案+解析）',f:'G:\\法\\00808_商法_题库.md',d:'广东卷+贵州卷真题精选+名词解释+案例分析+简答题'},
+   {n:'📄 商法笔记与真题(广东卷)',f:'G:\\法\\.workbuddy\\materials\\00808商法/',d:'多套真题含答案，广东卷参考价值高'},
+   {n:'📄 商法完整zip(含更多资料)',f:'G:\\法\\.workbuddy\\materials\\00808商法/00808商法.zip',d:'需进一步解压——内含笔记/讲义/章节测试等'}
+  ],
+  online:[
+   {n:'鄢梦萱 · 商法精讲（厚大法考）',u:'https://search.bilibili.com/all?keyword=%E9%84%A2%E6%A2%A6%E8%90%B1+%E5%95%86%E6%B3%95+%E7%B2%BE%E8%AE%B2',p:'B站',pc:'b',d:'商法第一人，体系完整重点突出，先看公司法再看其他'},
+   {n:'刘安琪 · 商经法（瑞达法考）',u:'https://search.bilibili.com/all?keyword=%E5%88%98%E5%AE%89%E7%90%AA+%E5%95%86%E7%BB%8F%E6%B3%95',p:'B站',pc:'b',d:'年轻有活力，案例生动，作为鄢梦萱的补充'},
+   {n:'00808商法 自考专项',u:'https://search.bilibili.com/all?keyword=00808+%E5%95%86%E6%B3%95+%E8%87%AA%E8%80%83',p:'B站',pc:'b',d:'搜索自考专用版课程'},
+   {n:'公司法 2024新公司法解读',u:'https://search.bilibili.com/all?keyword=2024+%E6%96%B0%E5%85%AC%E5%8F%B8%E6%B3%95+%E8%A7%A3%E8%AF%BB',p:'B站',pc:'b',d:'⚠ 2024年公司法大修，务必看最新解读'},
+   {n:'商法 非破产清算',u:'https://search.bilibili.com/all?keyword=%E9%84%A2%E6%A2%A6%E8%90%B1+%E7%A0%B4%E4%BA%A7%E6%B3%95',p:'B站',pc:'b',d:'破产法是商法中最难的一块，专项攻克'},
+   {n:'商法 法考口诀 速记',u:'https://www.douyin.com/search/%E5%95%86%E6%B3%95+%E6%B3%95%E8%80%83+%E5%8F%A3%E8%AF%80',p:'抖音',pc:'d',d:'鄢梦萱口诀碎片化记忆'}
+  ],
+  items:[
+   {id:'0808_1',t:'⚠ 优先确认：2024年公司法大修，教材和笔记是否为<b class="k">最新版</b>'},
+   {id:'0808_2',t:'公司法优先级最高（占分约40%），先把公司法吃透再看其他'},
+   {id:'0808_3',t:'鄢梦萱商法精讲→只取公司法+合伙企业法+破产法部分，对照自考大纲'},
+   {id:'0808_4',t:'有限责任公司 vs 股份有限公司的设立/治理/变更——制成对比表'},
+   {id:'0808_5',t:'破产法：背诵分配顺序（破产费用→职工→税→普通债权），考场上不外乎这些'},
+   {id:'0808_6',t:'刷近3年真题，特别注意公司法案例题'},
+   {id:'0808_7',t:'票据/保险/证券三块：只背核心考点，不逐条精读（性价比判断）'}
+  ]
+ },
+
+ c0247:{code:'00247',name:'国际法',color:'var(--c0247)',time:'10/24 上午',tag:'',tagColor:'',folder:'00247国际法',
+  alarm:'本时段（10/24上午）同时开考3门：00247国际法 / 00230合同法 / 15044马原。你报了国际法，<b>放弃了合同法和马原</b>。国际法（国际公法）与13702国际经济法是两门不同的课，不要混淆——国际法是公法（国家间关系），国际经济法是经济领域的国际规则。',
+  desc:'法学本科。国际公法，调整国家间关系的法律规范的总称。重点：国际法主体、领土法、海洋法、外交关系法、条约法、国际责任。自考题型为单选、多选、名词解释、简答、论述。与法考三国法的"国际公法"部分完全重合。',
+  know:[
+   {t:'国际法总论',items:['国际法的渊源：国际条约、国际习惯、一般法律原则——注意三者的效力层级','国际法与国内法的关系：一元论 vs 二元论，中国采"纳入+转化"模式','国际法的主体：国家（最主要）→国际组织（派生）→个人（有限承认）','国家的基本权利：独立权、平等权、自卫权、管辖权']},
+   {t:'领土与海洋',items:['领土的取得与变更：先占、时效、添附、割让、征服——其中"先占"要有效占领','领土的边界与边境制度','海洋法：内水→领海(12海里)→毗连区(24海里)→专属经济区(200海里)→大陆架→公海','无害通过权 vs 过境通行权——别搞混','国际海底区域——人类共同继承财产']},
+   {t:'外交与领事',items:['外交特权与豁免：使馆馆舍不可侵犯、外交人员人身不可侵犯、刑事/民事豁免','领事特权与豁免：比外交保护范围窄','特别使团制度','注意区分：外交豁免 vs 领事豁免，前者范围更广']},
+   {t:'条约法',items:['条约的缔结：谈判→签署→批准→交换/交存批准书→生效','条约的保留——只能"保留"不属条约核心目的的条款','条约的无效：错误/欺诈/贿赂/强迫/与强行法冲突','条约的解释规则：《维也纳条约法公约》第31-33条','条约的终止与暂停施行']},
+   {t:'国际责任与国际争端',items:['国家责任的构成要件：行为归因于国家+违反国际义务','解除行为不法性的情况：同意/自卫/反措施/不可抗力/危难/危急','国际争端的和平解决：谈判→斡旋→调停→调查→和解→仲裁→司法解决','国际法院的管辖权：诉讼管辖+咨询管辖']}
+  ],
+  local:[
+   {n:'📘 00247国际法·大白话知识点总结',f:'G:\\法\\00247_国际法_大白话知识点.md',d:'13章大白话讲解+各区域海洋法宽度速记+考前速记'},
+   {n:'📕 00247国际法·题库（含答案+解析）',f:'G:\\法\\00247_国际法_题库.md',d:'215个知识点+74道精选真题，按章节分类，每题带解析'},
+   {n:'📄 国际法历年真题合集',f:'G:\\法\\.workbuddy\\materials\\00247国际法/',d:'多套真题含答案，覆盖近年考期'},
+   {n:'📄 国际法笔记/讲义(在法学.zip嵌套中)',f:'G:\\法\\.workbuddy\\materials\\00247国际法/',d:'原始文件为.tar格式，尚未解压到此处'}
+  ],
+  online:[
+   {n:'杨帆 · 国际公法（瑞达法考）',u:'https://search.bilibili.com/all?keyword=%E6%9D%A8%E5%B8%86+%E5%9B%BD%E9%99%85%E5%85%AC%E6%B3%95',p:'B站',pc:'b',d:'三国法女王，国际公法部分是00247的最佳视频课'},
+   {n:'殷敏 · 国际法（厚大法考）',u:'https://search.bilibili.com/all?keyword=%E6%AE%B7%E6%95%8F+%E5%9B%BD%E9%99%85%E6%B3%95',p:'B站',pc:'b',d:'备选，押题准'},
+   {n:'00247国际法 自考专项',u:'https://search.bilibili.com/all?keyword=00247+%E5%9B%BD%E9%99%85%E6%B3%95+%E8%87%AA%E8%80%83',p:'B站',pc:'b',d:'筛选自考专用课程'},
+   {n:'杨帆 海洋法/外交法专题',u:'https://search.bilibili.com/all?keyword=%E6%9D%A8%E5%B8%86+%E6%B5%B7%E6%B4%8B%E6%B3%95',p:'B站',pc:'b',d:'领土海洋法是自考重点'},
+   {n:'北大/武大 国际法 MOOC',u:'https://www.icourse163.org/search.htm?search=%E5%9B%BD%E9%99%85%E6%B3%95',p:'MOOC',pc:'m',d:'武大国际法全国领先'},
+   {n:'国际法 Public International Law',u:'https://www.youtube.com/results?search_query=Public+International+Law+lecture',p:'YouTube',pc:'y',d:'英文课程辅助理解国际法院/国家责任'},
+   {n:'国际法 抖音速记',u:'https://www.douyin.com/search/%E5%9B%BD%E9%99%85%E6%B3%95+%E8%87%AA%E8%80%83',p:'抖音',pc:'d',d:'碎片化记忆'}
+  ],
+  items:[
+   {id:'0247_1',t:'分清：国际公法(00247) vs 国际经济法(13702)——两门课，不要交叉混淆'},
+   {id:'0247_2',t:'杨帆国际公法课从头到尾听一遍（约15-20小时），形成框架'},
+   {id:'0247_3',t:'海洋法重点：各区域宽度+权利内容制成表格对比'},
+   {id:'0247_4',t:'条约法：维也纳条约法公约核心条款是自考历年重点'},
+   {id:'0247_5',t:'外交豁免 vs 领事豁免——逐条对比，这是选择题最爱挖坑的地方'},
+   {id:'0247_6',t:'刷近5年真题，看高频考点分布'},
+   {id:'0247_7',t:'背诵：国家基本权利+国际争端解决方式+领土取得方式'}
+  ]
+ },
+
+ c13702:{code:'13702',name:'国际经济法',color:'var(--c13702)',time:'10/23 下午',tag:'学位课',tagColor:'#dc2626',folder:'13702国际经济法',
+  alarm:'<b>⚠ 学位课！</b>本课程为法学本科学位课，直接影响学位授予，通常要求<b>70分以上</b>。务必重点投入！10月23日周五下午考试，是本考期第一天的下午场，也是你最早考的一门。',
+  desc:'法学本科学位课。涵盖国际贸易法（含国际货物买卖、运输/保险/支付）、国际投资法、国际金融法、国际税法、WTO法。与法考三国法中"国际经济法"完全重合，直接跟杨帆。',
+  know:[
+   {t:'国际贸易法（占分约40%）',items:['国际货物买卖：CISG公约——适用范围、合同成立、买卖双方义务、违约救济','国际贸易术语(Incoterms)：FOB/CIF/CFR/FCA等——风险和费用划分是关键','海上货物运输：提单的功能（运输合同证明+货物收据+物权凭证）','海上保险：平安险/水渍险/一切险——承保范围递增','国际贸易支付：信用证(Letter of Credit)——独立抽象原则是核心考点']},
+   {t:'国际投资法',items:['投资的定义和形式：FDI（直接投资） vs 间接投资','投资保护：最惠国待遇、国民待遇、公平公正待遇','征收与补偿：直接征收 vs 间接征收；"充分及时有效" vs "适当补偿"','投资者-国家争端解决(ISDS)：ICSID仲裁——这是近年热点','双边投资协定的核心条款']},
+   {t:'WTO法',items:['WTO基本原则：最惠国待遇、国民待遇、关税减让、取消数量限制','最惠国待遇 vs 国民待遇——一个管"内外平等"，一个管"进口vs国产平等"','争端解决机制：磋商→专家组→上诉机构→裁决执行','反倾销/反补贴/保障措施——三种贸易救济措施','中国入世议定书的特殊条款']},
+   {t:'国际金融与税法',items:['国际金融：IMF的作用、特别提款权(SDR)、外汇管制','国际税法：税收管辖权（属人 vs 属地）、国际重复征税、税收协定','转移定价与避税——跨国公司的税务筹划','常设机构(PE)的认定——决定征税权的关键']}
+  ],
+  local:[
+   {n:'📘 13702国际经济法·大白话知识点总结',f:'G:\\法\\13702_国际经济法_大白话知识点.md',d:'17章大白话讲解+贸易术语口诀+考前速记清单（名词解释/简答/论述）'},
+   {n:'📕 13702国际经济法·题库（含答案）',f:'G:\\法\\13702_国际经济法_题库.md',d:'⚠学位课必练！26道全题型覆盖+名词解释10个+论述题3个方向'},
+   {n:'📄 国际经济法考点梳理',f:'G:\\法\\.workbuddy\\materials\\13702国际经济法/13702《国际经济法》考点梳理.pdf',d:'各章核心考点汇总，第一份看的资料'},
+   {n:'📄 国际经济法通关宝典',f:'G:\\法\\.workbuddy\\materials\\13702国际经济法/13702《国际经济法》通关宝典.pdf',d:'系统复习资料，含章节梳理'},
+   {n:'📄 国际经济法重点笔记',f:'G:\\法\\.workbuddy\\materials\\13702国际经济法/13702《国际经济法》重点笔记.pdf',d:'全部重点内容浓缩'},
+   {n:'📄 2024年真题及答案',f:'G:\\法\\.workbuddy\\materials\\13702国际经济法/202404《国际经济法》真题及答案.pdf',d:'近2年真题，题型稳定'}
+  ],
+  online:[
+   {n:'杨帆 · 三国法精讲（瑞达法考）',u:'https://search.bilibili.com/all?keyword=%E6%9D%A8%E5%B8%86+%E4%B8%89%E5%9B%BD%E6%B3%95+%E7%B2%BE%E8%AE%B2',p:'B站',pc:'b',d:'国际经济法部分是13702的最佳免费视频课，业界公认第一'},
+   {n:'殷敏 · 国际经济法',u:'https://search.bilibili.com/all?keyword=%E6%AE%B7%E6%95%8F+%E5%9B%BD%E9%99%85%E7%BB%8F%E6%B5%8E%E6%B3%95',p:'B站',pc:'b',d:'厚大法考，作为杨帆的补充和备选'},
+   {n:'13702国际经济法 自考专项',u:'https://search.bilibili.com/all?keyword=13702+%E5%9B%BD%E9%99%85%E7%BB%8F%E6%B5%8E%E6%B3%95+%E8%87%AA%E8%80%83',p:'B站',pc:'b',d:'搜索自考专用版'},
+   {n:'WTO法 专题讲解',u:'https://search.bilibili.com/all?keyword=WTO%E6%B3%95+%E6%9D%A8%E5%B8%86',p:'B站',pc:'b',d:'WTO法是自考重点，找专题视频加深'},
+   {n:'国际贸易术语 Incoterms',u:'https://search.bilibili.com/all?keyword=%E5%9B%BD%E9%99%85%E8%B4%B8%E6%98%93%E6%9C%AF%E8%AF%AD+FOB+CIF',p:'B站',pc:'b',d:'FOB/CIF/CFR的风险和费用划分是必考点'},
+   {n:'武大/法大 国际经济法 MOOC',u:'https://www.icourse163.org/search.htm?search=%E5%9B%BD%E9%99%85%E7%BB%8F%E6%B5%8E%E6%B3%95',p:'MOOC',pc:'m',d:'系统补充学术深度'},
+   {n:'国际经济法 法考口诀',u:'https://www.douyin.com/search/%E5%9B%BD%E9%99%85%E7%BB%8F%E6%B5%8E%E6%B3%95+%E6%9D%A8%E5%B8%86',p:'抖音',pc:'d',d:'碎片化记忆国际贸易术语等'}
+  ],
+  items:[
+   {id:'13702_1',t:'<b class="k">这门是学位课，必须70+</b>——优先度最高，不能有任何知识点盲区'},
+   {id:'13702_2',t:'第一份看的资料：考点梳理PDF，快速建立全科目框架'},
+   {id:'13702_3',t:'杨帆国际经济法精讲从头听到尾（约18-22小时），做笔记'},
+   {id:'13702_4',t:'国际贸易术语(FOB/CIF/CFR/FCA等)全部默写到能闭眼答——这是送分题也是必考题'},
+   {id:'13702_5',t:'CISG公约：适用范围→合同成立→双方义务→违约救济，一条线串起来'},
+   {id:'13702_6',t:'WTO最惠国待遇 vs 国民待遇——最容易被选择/简答混淆，反复练'},
+   {id:'13702_7',t:'信用证独立抽象原则——能用自己的话举例说明'},
+   {id:'13702_8',t:'刷近3年真题 + 做通关宝典的课后题，错题至少过两遍'},
+   {id:'13702_9',t:'考前冲刺：重点笔记再过一遍 + 默写5大核心概念'}
+  ]
+ }
+};
+
+const OTHER=[
+ {k:'ai',name:'AI视频·零基础',color:'#0891b2',
+  desc:'从完全零基础到能独立出品AI视频的5级台阶。2026年7-8月最新工具：Seedance2.5（字节跳动）、Google Vids+Gemini Omni、Midjourney Video、可灵3.0、即梦。不需要任何剪辑经验、不需要任何美术基础——只需要跟着台阶一级一级走。',
+  alarm:'<b>零基础承诺：</b>你不需要会剪视频、不需要会画画、不需要懂镜头语言。每一步都是"打开这个网站→输入这句话→点这个按钮"。所有工具都有免费额度，第一周一分钱不用花。',
+  steps:[
+   {n:'台阶0 · 开眼（第1天）',tag:'门槛：无',items:[
+    '<b>任务：注册3个账号，各生成一段5秒视频，感受不同工具的味道。</b>',
+    '打开 <b>可灵Kling (app.klingai.com)</b>，注册→输入"一只橘猫在窗台上晒太阳"→点生成→等15秒→看结果',
+    '打开 <b>即梦Dreamina (jimeng.jianying.com)</b>，同样输入一段话→生成→对比和可灵的区别',
+    '打开 <b>Midjourney (midjourney.com)</b>，同样生成一张图→下载→上传到可灵→选"图生视频"→看它自己动起来',
+    '今日成果：你知道AI视频大概长什么样了，知道文生视频和图生视频的区别了。不会比这更难。'
+   ]},
+   {n:'台阶1 · 第一条片（第2-3天）',tag:'门槛：无',items:[
+    '<b>任务：做一条完整的15秒视频并发出去。</b>（完成比完美重要一万倍。第一片不用好看，只要"存在"。）',
+    '写一个<b>极简脚本</b>：一个场景一个动作。比如"一只猫从画面左边走到右边"——对，就这一句话就行。',
+    '用即梦/可灵生成3-5个版本的视频片段，<b>挑看着最顺眼的那个</b>（不追求完美，只追求"能用"）',
+    '打开剪映(CapCut)：导入片段→加一个0.3秒的"叠化"转场→加自动字幕→加一段BGM→导出',
+    '发到抖音/B站/小红书<b>任意一个平台</b>——发出去了才算台阶1完成',
+    '成就感：你从"不会做AI视频"变成了"会做AI视频"。虽然只有15秒，但门已经开了。'
+   ]},
+   {n:'台阶2 · 提示词（第4-6天）',tag:'门槛：台阶1完成',items:[
+    '<b>任务：掌握提示词工程，从"抽卡"变成"导演"。</b>',
+    '学会公式：<b>主体是什么 + 在什么环境 + 在做什么动作 + 镜头怎么拍 + 画质要求</b>（按这个顺序写，不要乱）',
+    '实例对比：差→"一个人走路"；好→"一个穿红色风衣的年轻女性在雨后石板路上缓步走向远处，镜头从背后跟拍，浅景深，cinematic lighting，4K"',
+    '<b>镜头语言常用词（贴在便签上）：</b>dolly-in(推近)、pan right(右摇)、low angle(低角度)、close-up(特写)、wide shot(广角)',
+    '画质词永远放<b>最后一行</b>：4K，cinematic lighting，photorealistic，24fps，shallow depth of field',
+    '中英混写效果最好：主体环境用中文讲清楚，画质参数照抄上面那行英文',
+    '做3条15秒不同风格的视频发出去——感受同一组提示词在不同工具里的差异'
+   ]},
+   {n:'台阶3 · 一致性（第7-14天）',tag:'门槛：台阶2完成',items:[
+    '<b>任务：同一角色在不同镜头里长得一样。</b>这是零基础→专业的分水岭。',
+    '<b>三视图生成法：</b>用Midjourney/即梦为你的主角生成正脸、侧脸、背面三张图，保存下来当"角色身份证"',
+    '用Seedance2.5的<b>多素材联合输入</b>功能（最多传50个参考文件！），把角色三视图+场景参考图+风格参考图全传上去',
+    '可灵3.0也有"<b>角色库/Character Reference</b>"功能——上传你的角色图，后续所有视频都锁定这个人的脸',
+    '<b>连续性圣经：</b>建一个文件夹，里面放3-5张角色参考图+2-3张场景参考图+1张风格参考图。每次做视频都从这里面选。',
+    '做一条3-5个镜头的短片，同一个主角从头出现到尾——这是你第一件"看起来像正经作品"的东西。'
+   ]},
+   {n:'台阶4 · 变现（第3周起）',tag:'门槛：台阶3完成',items:[
+    '<b>任务：把AI视频变成钱。按门槛从低到高排列，你选一条先跑通。</b>',
+    '<b>路径1 · AI漫剧/短剧（最快变现）：</b>抖音/B站发AI生成的故事漫剧→靠播放量分成+广告。月发15条以上，单号月入0.5K-3K。Seedance2.5的多角色联合输入是这个赛道的神器。',
+    '<b>路径2 · AI口播号（零出镜）：</b>Google Vids的AI分身功能→做法律科普/英语学习/网文推书→挂橱窗带货+广告。这个可以和你的法学/英语学习结合，一份知识两条收益。',
+    '<b>路径3 · AI广告短片（单价高）：</b>接本地商家/电商的AI广告，一条15-30秒报价500-2000元。Seedance2.5的50素材联合输入让产品颜色LOGO完全可控。',
+    '<b>路径4 · 知识付费（上限最高）：</b>把AI视频制作流程录成课，在B站/知识星球卖。你有法学+英语+西语+网文四套内容，加上AI制作能力，能做出别人做不出的课程。',
+    '<b>关键心态：</b>不要期待第一天发出去就爆。先稳定日更14天，数据说话。AI只是把执行效率提了10倍，选赛道和讲故事的能力才是钱的来源。'
+   ]}
+  ],
+  online:[
+   {n:'可灵Kling AI（免费）',u:'https://app.klingai.com',p:'工具',pc:'b',d:'每天66积分≈6条5秒视频，中文最优。台阶0从这里开始'},
+   {n:'即梦Dreamina',u:'https://jimeng.jianying.com',p:'工具',pc:'b',d:'与抖音打通，手机端流畅。台阶0的第二个工具'},
+   {n:'Seedance2.5深度拆解',u:'https://www.toutiao.com/article/7664159607049011752',p:'教程',pc:'v',d:'字节跳动7月新品:30秒直出/50素材联合输入/帧级编辑，台阶3主力'},
+   {n:'剪映CapCut',u:'https://www.capcut.cn',p:'工具',pc:'b',d:'AI配音+自动字幕+免费BGM。台阶1剪辑用这个就够了'},
+   {n:'Google Vids+Gemini Omni',u:'https://aistacknav.com/google-vids-gemini-omni-ai-video-workflow',p:'教程',pc:'v',d:'AI分身出镜，台阶4路径2的核心工具'},
+   {n:'Midjourney',u:'https://www.midjourney.com',p:'工具',pc:'v',d:'1080p 48fps免费，电影级画质。台阶3出关键帧首选'},
+   {n:'AI视频零基础教程',u:'https://search.bilibili.com/all?keyword=AI%E8%A7%86%E9%A2%91+%E9%9B%B6%E5%9F%BA%E7%A1%80+%E6%95%99%E7%A8%8B+2026',p:'B站',pc:'b',d:'挑2026年7月以后的教程——这个领域半年就过时'},
+   {n:'Pixabay免费商用BGM',u:'https://pixabay.com/music/',p:'素材',pc:'m',d:'配乐免费来源，不用纠结版权'}
+  ]
+ },
+
+ {k:'wen_hand',name:'手写网文·零基础',color:'#059669',
+  desc:'纯人工写作路线。平台：番茄小说（门槛最低，2万字可签约）→七猫→起点。核心逻辑：选对赛道 > 拆书模仿 > 动笔 > 签约 > 日更 > 30万字完本复盘。80%新人死在"写了2万字就切"——而通关秘诀只有一个：写完。',
+  alarm:'<b>零基础承诺：</b>你不需要是"会写作的人"。写网文是一种可以通过模仿学会的手艺。整个番茄小说只有两类人会赚钱——日更不断的人，和日更不断且写得久的人。文笔是练出来的，不是天生带来的。',
+  steps:[
+   {n:'台阶0 · 了解这行（1-2天）',tag:'门槛：无',items:[
+    '<b>任务：搞清楚网文是什么、怎么赚钱、平台怎么选。不做别的事，只做了解。</b>',
+    '打开番茄小说APP→找"排行榜"→按"热读"排序→<b>只看前10本书的简介和前3章</b>，感受它们为什么能火',
+    '选平台（三选一）：番茄（免费阅读+快节奏爽文，新人最友好）vs 七猫（逻辑严谨+有训练营+10元/千字奖学金）vs 起点（男频长篇大世界观，最难签但IP上限最高）',
+    '去番茄的PC端作家专区→完成<b>实名认证</b>（不然后面无法签约，这一卡就是几天）',
+    '今日成果：你知道自己要在哪个平台写了，知道这个平台读者喜欢什么类型的文。'
+   ]},
+   {n:'台阶1 · 拆书（第1周）',tag:'门槛：台阶0完成',items:[
+    '<b>任务：拆解3本同类型爆款书。不写，只看。模仿是进步最快的方式。</b>',
+    '选3本近3个月火起来的、和你打算写的类型一样的书（玄幻/言情/都市/悬疑/脑洞选一个你最爱看的）',
+    '<b>拆第一本书：</b>只看前三章。记录：①第一句是什么 ②第一章300字内发生了什么事件 ③这个主角是好人坏人有趣的人——你怎么知道的（作者用了哪几个细节）',
+    '<b>拆第二本书：</b>看前30章。记录：①每几章有一个爽点 ②每章结尾的钩子是什么（你为什么会点下一章）③剧情推进的节奏——快的时候多快，慢的时候多慢',
+    '<b>拆第三本书：</b>翻评论区。记录：①读者在爽什么 ②读者在骂什么 ③什么角色读者最喜欢',
+    '成果：你手里有一张<b>"节奏模板表"</b>——这是你开书时的作业本，告诉你每一步踩在哪里。学的是结构，不是抄剧情。'
+   ]},
+   {n:'台阶2 · 大纲+开篇（第2周）',tag:'门槛：台阶1完成',items:[
+    '<b>任务：写好大纲和人设，写出前三章。不需要好看，只需要存在。</b>',
+    '<b>写人设卡：</b>主角叫什么→几岁→什么性格→有什么缺陷→想要什么→谁在挡他路。反派同理。不超过一张纸。',
+    '<b>写大纲：</b>不是写作文。就是列清单：第一卷讲什么（100字）→第1-10章每章一句话情节→第10-30章每章一句话情节。就够了。',
+    '<b>前三章绝对标准（能不能签就看这个）：</b>第1章300字内必须发生一件让读者想知道"然后呢"的事。第1章结尾必须留一个明显到不能忽略的钩子。前三章必须让读者搞清楚"我为什么要在乎这个主角"。',
+    '书名：7-10个字，带2个以上热词（比如"重生""逆袭""系统""签到"）。签约之后改书名极麻烦，一次定死。',
+    '成果：你有大纲了，有人设卡了，有前三章了。不管质量如何，你已经超过了90%想写但一个字没写的人。'
+   ]},
+   {n:'台阶3 · 签约冲刺（第3-4周）',tag:'门槛：台阶2完成',items:[
+    '<b>任务：攒够2万字，申请签约，进入日更节奏。</b>',
+    '一次性备好2万字再发（不是写一章发一章）→发完的当天立刻在后台点"申请签约"。<b>避开周末提交——审核慢。</b>',
+    '签约审核3-5天。审核期间保持每天更新，展示创作态度。通过率>60%，比考试简单。',
+    '<b>固定一个时间更新（比如每晚8点）</b>——选一个你能雷打不动的时间。读者会形成追更习惯。',
+    '每天目标：<b>4000字=2章×2000字</b>。番茄全勤要求日更4000字。先练肌肉，不在字数上打折。',
+    '每章发布前检查：结尾有没有钩子→读者会不会点下一章。有，发。没有，加一句话再发。'
+   ]},
+   {n:'台阶4 · 完本（第2-4个月）',tag:'门槛：台阶3完成',items:[
+    '<b>任务：写到30万字完本。不是写好，是写完。99%的新人死在这里。</b>',
+    '8万字→系统验证期开始。10万字→首秀推流。这10万字是全书的命。不在这10万字里糊弄。',
+    '盯一个数据：<b>10万字读完率</b>。低于15%说明方向有问题，认真考虑是否切文。高于25%说明找对了路子。',
+    '不论数据好坏，<b>写到30万字再复盘。</b>切书狂魔永远困在开头。完本本身就是一种能力证明。',
+    '完本之后做的事：①复盘整本书从0到30万字的数据变化 ②找出"写得顺"和"写得卡"的章节对比 ③带着复盘结果开下一本。',
+    '赚到第一笔稿费的时间节点：全勤奖（签约后第一个完整月，¥600-800）+阅读分成（10万字后开始有）→第一个月通常¥500-1500。'
+   ]}
+  ],
+  online:[
+   {n:'番茄小说 作家专区',u:'https://fanqienovel.com',p:'平台',pc:'b',d:'注册+实名认证+创建作品+申请签约一站式'},
+   {n:'番茄新手投稿全指南',u:'https://www.bilibili.com/read/cv20466069/',p:'B站专栏',pc:'b',d:'字数节点/收益规则/数据解读，全网最细'},
+   {n:'网文新人避坑防骗指南',u:'https://www.bilibili.com/read/cv15725190',p:'B站专栏',pc:'b',d:'全职作者写的前十坑，第一条就是别报写作班'},
+   {n:'网文写作 零基础教程',u:'https://search.bilibili.com/all?keyword=%E7%BD%91%E6%96%87%E5%86%99%E4%BD%9C+%E9%9B%B6%E5%9F%BA%E7%A1%80+%E6%96%B0%E4%BA%BA',p:'B站',pc:'b',d:'搜播放量高的，挑有实际成绩的UP主'},
+   {n:'网文 大纲+拆书方法',u:'https://search.bilibili.com/all?keyword=%E7%BD%91%E6%96%87+%E5%A4%A7%E7%BA%B2+%E6%8B%86%E4%B9%A6+%E6%96%B9%E6%B3%95',p:'B站',pc:'b',d:'结构训练核心，台阶1必备'},
+   {n:'龙的天空论坛',u:'https://www.lkong.com',p:'社区',pc:'b',d:'写手老巢，行业动态、平台八卦、骗局曝光'},
+   {n:'起点中文网 作家专区',u:'https://my.qidian.com',p:'平台',pc:'b',d:'难度高但IP上限最高，适合第二本书'}
+  ]
+ },
+
+ {k:'wen_ai',name:'AI写文·零基础',color:'#7c3aed',
+  desc:'用AI辅助写作，保速度+保质量。核心公式：AI填内容覆盖日更字数→人定内核保证故事质量。番茄2万字签约→8万字验证→10万字首秀→日更4000字→全勤+分成叠加变现。',
+  alarm:'<b>⚠ AI写作铁律：</b>① 纯AI生成不加修改会被判低质降量——每章至少30%人工润色。② 任何收费AI写作课都是骗局——所有SOP在网上免费公开。③ 第一本书写到30万字再复盘——切书狂魔永远困在开头。',
+  steps:[
+   {n:'台阶0 · 认识AI写作（第1天）',tag:'门槛：无',items:[
+    '<b>任务：打开一个AI工具，让它帮你写300字的微小说。感受AI能做什么、不能做什么。</b>',
+    '打开DeepSeek(chat.deepseek.com)，输入："帮我写一段300字的玄幻小说开头，主角是一个会说话的猫，背景是现代都市"。看结果。',
+    '<b>同一段提示词，换到Kimi/豆包/通义千问各生成一次。</b>对比：哪个文风你喜欢？哪个废话少？哪个会自己编设定？',
+    '观察三件事：① AI写空洞废话——"他的眼神深邃如星辰"这种 ② AI记不住之前写了什么——你说过的设定5句之后它就忘了 ③ AI不懂"节奏"——它不会在应该在的地方留钩子。这就是你以后要手动改的地方。',
+    '今日成果：你知道AI写作的上限和下限了。它不是魔法，是一个跑得很快但方向感很差的助手。'
+   ]},
+   {n:'台阶1 · AI搭世界观+大纲（第2-3天）',tag:'门槛：台阶0完成',items:[
+    '<b>任务：用AI帮你搭出一本书的完整骨架。</b>',
+    '先上"手写网文"板块的台阶0和台阶1——你要先知道什么叫好大纲，才能让AI帮你想好大纲。顺序不能反。',
+    '打开DeepSeek，输入："我需要你帮我设计一个玄幻小说的世界观。核心设定是[你自己想的那个点子]。请输出：①世界背景（300字）②势力分布（至少3个势力）③力量体系/等级 ④这个故事最大的矛盾是什么"',
+    '拿到世界观之后，继续："基于上面的世界观，帮我设计一个主角。包括：姓名、年龄、性格、外貌、身世、核心欲望、最大的缺陷、成长路径。用一段话描述他出场时的场景。"',
+    '再来："基于以上所有设定，帮我列出三卷大纲。每卷50字概述。再细化第一卷的前10章每章一句话剧情，标注每章的爽点位置。"',
+    '<b>审核环节：</b>AI给的大纲通常有80%是对的但20%很无聊——你的工作是把无聊的20%替换成你自己的点子。AI提供砖瓦，你决定房子长什么样。'
+   ]},
+   {n:'台阶2 · AI扩写+黄金三章（第4-7天）',tag:'门槛：台阶1完成',items:[
+    '<b>任务：让AI帮你写第一章初稿，然后你手动打磨到能签约的水平。</b>',
+    '<b>开篇生成：</b>把大纲第一章的细纲+人设卡+你喜欢的文风参考喂给笔灵AI/灵蟹创作→生成3-5个不同版本的开篇→挑最有张力的那一版',
+    '<b>人工打磨黄金三章（这部分AI帮不了）：</b>① 开头300字，必须出现核心冲突事件 ② 500字内拉出"主角想要什么+谁在挡他" ③ 第一章结尾留明显钩子 ④ 前三章让读者搞清楚"我为什么要在乎这个主角"',
+    '<b>黄金标准自检：</b>把前三章发给一个没看过大纲的朋友，看完问两个问题：你想知道他接下来要干嘛吗；你觉得这个主角有意思吗。两个都是"是"，合格。',
+    '成果：你有了一套能拿去投稿的开篇。虽然只有9000字（3章×3000字），但这是整本书最重要的9000字。'
+   ]},
+   {n:'台阶3 · AI辅助日更（第2-4周）',tag:'门槛：台阶2完成',items:[
+    '<b>任务：建立"AI粗写→人工精修"的日更流水线。每天2-3小时，稳定输出4000字。</b>',
+    '<b>日常流程：</b>把今天的章节细纲（3-5句话）丢给AI→AI扩写成2000字初稿（5-10分钟）→你花40-60分钟改三样东西：',
+    '① 情绪戏（AI不会写"心碎"——只会写"他感到很难过"） ② 反转点（AI不会突然转折——只会平铺直叙） ③ 钩子（AI从来不会在结尾留悬念——这是你最要手动加的东西）',
+    '固定每天同一个时间发，培养读者追更习惯。断更=流量腰斩。',
+    '用Claude/DeepSeek做大纲Review：每写完10章，把前文大纲+已写内容喂给AI→让它找"人设前后矛盾""副线消失""节奏拖沓"的问题。',
+    '签约之后：立刻激活全勤模式。日更4000字=¥600-800/月。这是最稳定的保底收入。'
+   ]},
+   {n:'台阶4 · 多书并行+优化变现（第2个月起）',tag:'门槛：台阶3完成',items:[
+    '<b>任务：同时运营2-3本书，叠加全勤+分成收入。</b>',
+    '<b>为什么多书并行：</b>番茄2026年全勤门槛提高（月收入需>500元才有资格）——一本书不够稳。同时开2-3本，确保至少一本达标。',
+    '<b>AI是多书并行的唯一解：</b>一本书的AI粗写管日更，另一本书的AI粗写也管日更——人的时间只花在"改最精彩的部分"上。',
+    '<b>收入结构：</b>①全勤叠加（2-3本×¥600-800）→¥1200-2400/月 ②阅读分成（稳定期每本¥10-20/日×30天）→¥300-600/月 ③飞卢短篇一次性稿费→¥300-800/本。三线并行，三个月累计¥10K+。',
+    '<b>进阶工具：</b>灵蟹创作SoloEnt（一次性管理多本书的设定/大纲/伏笔）+ FeelFish（百万字上下文记忆，长篇不崩人设）。',
+    '<b>终极提醒：</b>AI工具会越来越好——但人类的"在乎"永远是最稀缺的东西。读者来读你的书，不是因为流畅，而是因为你在乎这个主角。AI负责流畅，你负责在乎。'
+   ]}
+  ],
+  online:[
+   {n:'DeepSeek（免费大脑）',u:'https://chat.deepseek.com',p:'工具',pc:'g',d:'台阶0就从这里开始——世界观设计+大纲推演+逻辑漏洞审查'},
+   {n:'灵蟹创作 SoloEnt',u:'https://www.soloread.com',p:'工具',pc:'v',d:'AI原生写作工作台：多书管理+技能包市场+本地存储，台阶3-4主力'},
+   {n:'笔灵AI',u:'https://www.bilingai.com',p:'工具',pc:'v',d:'300+网文模板+黄金三章生成器，台阶2开篇首选'},
+   {n:'FeelFish',u:'https://www.feelfish.cn',p:'工具',pc:'v',d:'百万字上下文记忆+角色档案自动更新，台阶4长篇必备'},
+   {n:'AI写小说月入10K实战SOP',u:'https://richmindsetzone.com/posts/ai-novel-writing-sop-10k',p:'教程',pc:'v',d:'从零到第一笔稿费的完整SOP，工具全公开'},
+   {n:'2026十大AI小说工具横评',u:'https://www.toutiao.com/article/7654044406961521206',p:'评测',pc:'v',d:'从变现到百万字长篇，各工具优缺点对比'},
+   {n:'AI写作 6步签约流程',u:'https://www.cnblogs.com/xielunwen/articles/21740121',p:'教程',pc:'v',d:'从定题材到多平台分发全流程'},
+   {n:'番茄小说 作家专区',u:'https://fanqienovel.com',p:'平台',pc:'b',d:'2万字签约，全勤¥600-800/月'},
+   {n:'AI写网文实战教程',u:'https://search.bilibili.com/all?keyword=AI%E5%86%99%E5%B0%8F%E8%AF%B4+%E5%AE%9E%E6%88%98+%E5%8F%98%E7%8E%B0+2026',p:'B站',pc:'b',d:'挑最新上传的，别看过时的'}
+  ]
+ },
+ {k:'other',name:'英语·西语·考研',color:'#059669',desc:'三板斧合在一起。英语：13000→四六级→考研英语一（共用一个底座）。西语：A1→B1长线兴趣。法学考研：2027年12月初试，不考数学。',alarm:'',steps:[
+  {n:'英语综合路线',tag:'四线共底座',items:['13000（10/25下午）→12月四六级→2027考研英语一→雅思暂缓','每天单词30个+长难句2-3个，雷打不动','阅读1篇/天，计时15分钟','语法一次性学完（英语兔·语法入门），之后不再重学']},
+  {n:'西班牙语',tag:'A1→B1',items:['教材：《现代西班牙语》新版 或 《走遍西班牙》','语音关2-3周：大舌音练drr/trr组合','动词变位每天手写5个→ser/estar是第一个分水岭','西语助手esdict.cn + 每日西语听力APP']},
+  {n:'法学考研',tag:'2027.12初试·17个月',items:['考试：政治101+英语一201+专业基础+专业综合=500分','唯一核心书：高教社《考试分析》','基础→强化→冲刺→模考四阶段','优势：自考法学和法硕知识点底座是同一套']
+  }],online:[
+  {n:'法硕考试分析精讲',u:'https://search.bilibili.com/all?keyword=%E6%B3%95%E7%A1%95+%E8%80%83%E8%AF%95%E5%88%86%E6%9E%90+%E7%B2%BE%E8%AE%B2',p:'B站',pc:'b',d:'跟一位老师从头到尾'},
+  {n:'研招网',u:'https://yz.chsi.com.cn',p:'官方',pc:'g',d:'报名/简章/调剂唯一入口'},
+  {n:'西语助手',u:'https://www.esdict.cn',p:'工具',pc:'v',d:'查词+完整动词变位表'},
+  {n:'英语兔语法',u:'https://search.bilibili.com/all?keyword=%E8%8B%B1%E8%AF%AD%E5%85%94+%E8%AF%AD%E6%B3%95',p:'B站',pc:'b',d:'一次性学完，不再回头'}
+ ]}
+];
+
+/* ============ State ============ */
+const KEY='studyhub_v2';
+let S=JSON.parse(localStorage.getItem(KEY)||'{}');
+S.ck=S.ck||{};S.note=S.note||{};
+const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+const dstr=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const TODAY=dstr(new Date());
+
+/* ============ Sidebar ============ */
+function buildSidebar(){
+ document.getElementById('today').textContent=new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'short'});
+ // Countdown
+ const now=new Date(), exam=new Date(EXAM_DATE), diff=exam-now, dd=Math.ceil(diff/86400000);
+ document.getElementById('side-cd').innerHTML='<span style="font-size:26px">'+dd+'</span><span style="font-size:13px;font-weight:500;margin-left:2px">天</span>';
+ document.getElementById('daycount').textContent=dd+'天';
+ // Course nav
+ const ckeys=Object.keys(COURSES);
+ document.getElementById('side-nav').innerHTML=ckeys.map(k=>{
+  const c=COURSES[k], ids=c.items.map(i=>i.id);
+  const done=ids.filter(i=>S.ck[i]).length;
+  return `<div class="si" data-p="${k}" onclick="go('${k}')"><span class="bar" style="background:${c.color}"></span>${c.name}<span class="pct">${done}/${ids.length}</span></div>`;
+ }).join('');
+ // Other sections
+ document.getElementById('side-other').innerHTML=OTHER.map(o=>
+  `<div class="si" data-p="${o.k}" onclick="go('${o.k}')"><span class="bar" style="background:${o.color}"></span>${o.name}</div>`).join('');
+ // daily check buttons
+ document.getElementById('chk').innerHTML=ckeys.map(k=>
+  '<button style="width:100%;text-align:left;font-size:11px;padding:6px 10px;margin:0;border-radius:5px;background:#ede6d9;border:1px solid #e0d8c8;color:var(--tx2);cursor:pointer" data-d="0">'+COURSES[k].name+'</button>').join('');
+ document.querySelectorAll('#chk button').forEach(b=>{
+  b.onclick=function(){this.dataset.d=this.dataset.d==='1'?'0':'1'; this.style.background=this.dataset.d==='1'?'#d4e8cf':'#ede6d9'; this.style.borderColor=this.dataset.d==='1'?'#8cc08e':'#e0d8c8'; this.style.color=this.dataset.d==='1'?'#2d6a2d':'var(--tx2)';};
+ });
+}
+
+/* ============ Main pages ============ */
+function renderCourse(k){
+ const c=COURSES[k],ids=c.items.map(function(i){return i.id;}),done=ids.filter(function(i){return S.ck[i];}).length;
+ const pct=ids.length?Math.round(done/ids.length*100):0;
+ var h='<div class="pg" id="pg-'+k+'">';
+ // header
+ h+='<div class="phd"><span class="cdt">'+c.name+'</span><span class="tag" style="background:'+(c.tagColor||c.color)+'">'+(c.tag||c.time)+'</span></div>';
+ h+='<div class="pdesc">'+c.desc+'</div>';
+ if(c.alarm) h+='<div class="alarm">'+c.alarm+'</div>';
+ // progress
+ h+='<div class="pbar"><div class="track"><i style="width:'+pct+'%;background:'+c.color+'"></i></div><div class="num">'+done+'/'+ids.length+'</div></div>';
+ // knowledge
+ h+='<div class="sec"><span class="bar" style="background:'+c.color+';width:4px;height:15px;display:inline-block;border-radius:2px"></span>知识点总结</div>';
+ h+='<div class="kg">';
+ c.know.forEach(function(kc){
+  h+='<div class="kc"><h4>'+kc.t+'</h4><ul>';
+  kc.items.forEach(function(item){ h+='<li>'+item+'</li>'; });
+  h+='</ul></div>';
+ });
+ h+='</div>';
+ // checklist
+ h+='<div class="sec"><span class="bar" style="background:'+c.color+';width:4px;height:15px;display:inline-block;border-radius:2px"></span>备考清单</div>';
+ c.items.forEach(function(i){
+  var id=i.id, done2=S.ck[id]?'done':'', chk=S.ck[id]?'checked':'';
+  h+='<label class="it '+done2+'" data-id="'+id+'"><input type="checkbox" '+chk+' onchange="toggleCheck(\''+id+'\',this)"><span>'+i.t+'</span></label>';
+ });
+ // local resources
+ h+='<div class="sec"><span class="bar" style="background:'+c.color+';width:4px;height:15px;display:inline-block;border-radius:2px"></span>本地上传资料</div>';
+ // Folder link
+ var folder='G:\\\\法\\\\.workbuddy\\\\materials\\\\'+c.folder;
+ h+='<div class="rl"><a class="r" href="file:///'+folder.replace(/\\\\/g,'/')+'" style="border-color:#d4c5a0;background:#fefdf8"><div class="n"><span>📂 打开本地资料文件夹</span><em class="l">文件管理器</em></div><div class="dsc">单击打开文件夹，或在地址栏输入:<br><span style="font-family:monospace;font-size:10px;user-select:all">'+folder+'</span></div></a>';
+ c.local.forEach(function(r){ h+='<div class="r" style="cursor:default;opacity:.88"><div class="n"><span>'+r.n+'</span><em class="l">本地</em></div><div class="dsc">'+r.d+'</div></div>'; });
+ h+='</div>';
+ // online resources
+ h+='<div class="sec"><span class="bar" style="background:'+c.color+';width:4px;height:15px;display:inline-block;border-radius:2px"></span>全网优质资源</div>';
+ h+='<div class="rl">';
+ c.online.forEach(function(r){ h+='<a class="r" href="'+r.u+'" target="_blank"><div class="n"><span>'+r.n+'</span><em class="'+(r.pc||'')+'">'+r.p+'</em></div><div class="dsc">'+r.d+'</div></a>'; });
+ h+='</div>';
+ // notes
+ h+='<div class="sec"><span class="bar" style="background:'+c.color+';width:4px;height:15px;display:inline-block;border-radius:2px"></span>学习笔记</div>';
+ h+='<textarea id="note-'+k+'" oninput="S.note[\''+k+'\']=this.value;save()">'+(S.note[k]||'')+'</textarea>';
+ h+='</div>';
+ return h;
+}
+
+function renderOther(k){
+ var o=OTHER.find(function(x){return x.k===k;}), h='';
+ var updKey='upd_'+k, updTime=S[updKey]||'v1';
+ h='<div class="pg" id="pg-'+k+'"><div class="phd" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="cdt">'+o.name+'</span></div><button class="upd'+(S._updQ&&S._updQ[k]?' req':'')+'" onclick="reqUpd(\''+k+'\')" title="点击标记，下次对话时我会为你搜索全网最新资源并更新">📡 更新资源 <span style="font-size:9px">('+updTime+')</span></button></div>';
+ h+='<div class="pdesc">'+o.desc+'</div>';
+ if(o.alarm) h+='<div class="alarm">'+o.alarm+'</div>';
+ if(o.steps&&o.steps.length){
+  o.steps.forEach(function(s){
+   h+='<div class="ph" data-fk="'+k+'_'+s.n+'"><div class="ph-h" onclick="var p=this.parentElement;p.classList.toggle(\'fold\')"><div class="n"><span class="tag" style="background:'+o.color+'">'+s.tag+'</span>'+s.n+'</div></div><div class="ph-b">';
+   s.items.forEach(function(item){ h+='<div class="it" style="cursor:default;padding:9px 16px"><span>'+item+'</span></div>'; });
+   h+='</div></div>';
+  });
+ }
+ if(o.online&&o.online.length){
+  h+='<div class="sec"><span class="bar" style="background:'+o.color+';width:4px;height:15px;display:inline-block;border-radius:2px"></span>资源与工具</div>';
+  h+='<div class="rl">';
+  o.online.forEach(function(r){
+   h+='<a class="r" href="'+r.u+'" target="_blank"><div class="n"><span>'+r.n+'</span><em class="'+(r.pc||'')+'">'+r.p+'</em></div><div class="dsc">'+r.d+'</div></a>';
+  });
+  h+='</div>';
+ }
+ h+='</div>';
+ return h;
+}
+function reqUpd(k){
+ S._updQ=S._updQ||{}; S._updQ[k]=TODAY;save();
+ var bt=document.querySelector('#pg-'+k+' .upd'); if(bt){bt.classList.add('req');bt.textContent='📡 已标记 '+TODAY;}
+ setTimeout(function(){if(bt){bt.classList.remove('req');bt.textContent='📡 下次对话更新';}},3000);
+}
+
+function renderAll(){
+ const main=document.getElementById('main');
+ let h='';
+ // Countdown strip
+ const now=new Date(), exam=new Date(EXAM_DATE);
+ const dates=[
+  {k:'距开考',d:EXAM_DATE,note:'10/23-25'},
+  {k:'10/23 周五',d:'2026-10-23T09:00',note:'国际法 / 证据法学'},
+  {k:'10/24 周六',d:'2026-10-24T09:00',note:'国际法 / 行政法'},
+  {k:'10/25 周日',d:'2026-10-25T09:00',note:'商法 / 英语'}
+ ];
+ h+=`<div class="cds">${dates.map(x=>{
+  const t=new Date(x.d),d=Math.ceil((t-now)/86400000);
+  const urgent=d<=30;
+  return '<div class="cd'+(urgent?' urgent':'')+'"><div class="lb"><span class="dot'+(urgent?' r':'')+'"></span>'+x.k+'</div><div class="nm">'+d+'<small> 天</small></div><div class="dt">'+x.note+'</div></div>';
+ }).join('')}</div>`;
+ // Course pages
+ for(const k in COURSES) h+=renderCourse(k);
+ // Other pages
+ for(const o of OTHER) h+=renderOther(o.k);
+ main.innerHTML=h;
+ // Set notes values
+ for(const k in COURSES){
+  const ta=document.getElementById('note-'+k);
+  if(ta&&S.note[k]) ta.value=S.note[k];
+ }
+}
+
+/* ============ Navigation ============ */
+function go(p){
+ document.querySelectorAll('.si').forEach(e=>e.classList.toggle('on',e.dataset.p===p));
+ document.querySelectorAll('.pg').forEach(e=>e.classList.toggle('on',e.id==='pg-'+p));
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleCheck(id,el){
+ S.ck[id]=el.checked;save();
+ el.closest('.it').classList.toggle('done',el.checked);
+ buildSidebar();
+ // Update course page progress bar
+ const pg=el.closest('.pg'); if(!pg)return;
+ const k=pg.id.replace('pg-',''); const c=COURSES[k];
+ const ids=c.items.map(i=>i.id); const done=ids.filter(i=>S.ck[i]).length;
+ const pct=ids.length?Math.round(done/ids.length*100):0;
+ pg.querySelector('.track i').style.width=pct+'%';
+ pg.querySelector('.num').textContent=done+'/'+ids.length;
+}
+
+/* ============ Init ============ */
+buildSidebar();renderAll();
+go(Object.keys(COURSES)[0]); // default to first course
+
+// tools
+function expJSON(){
+ const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(b);
+ a.download='自考进度备份-'+TODAY+'.json';a.click();
+}
+function impJSON(el){
+ const f=el.files[0];if(!f)return;const r=new FileReader();
+ r.onload=e=>{try{S=JSON.parse(e.target.result);save();location.reload();}catch(x){alert('格式不对');}};
+ r.readAsText(f);
+}
+function resetAll(){if(confirm('清空所有进度？不可恢复。')){localStorage.removeItem(KEY);location.reload();}}
+</script>
+</body>
+</html>
